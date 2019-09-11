@@ -1,5 +1,7 @@
 function love.load()
+    ico = love.image.newImageData("bullet.png")
     love.graphics.setDefaultFilter("nearest", "nearest")
+    love.window.setIcon(ico)
     score = 0
     kys = false
     gamestart = false
