@@ -27,22 +27,55 @@ And btw you can kill yourself with your own .. your own balls.
   player.x = 400
   player.y = 400
   player.rotation = 0
-  player.bullets = {}
+  BULLET_SPEED = 5
+  player.bulletsL = {}
+  player.bulletsR = {}
+  player.bulletsU = {}
+  player.bulletsD = {}
   player.cooldown = 20
-  player.speed = 10
-  player.fire = function()
   player.fireposx = 380
   player.fireposy = 400
+  player.fireL = function()
     if player.cooldown <= 0 then
       player.cooldown = 20
       bullet = {}
       bullet.img = love.graphics.newImage("bullet.png")
       bullet.x = player.fireposx
       bullet.y = player.fireposy
-      table.insert(player.bullets, bullet)
+      table.insert(player.bulletsL, bullet)
     end
   end
-  shadowsSpeed = 1
+  player.fireR = function()
+    if player.cooldown <= 0 then
+      player.cooldown = 20
+      bullet = {}
+      bullet.img = love.graphics.newImage("bullet.png")
+      bullet.x = player.fireposx + 100
+      bullet.y = player.fireposy
+      table.insert(player.bulletsR, bullet)
+    end
+  end
+  player.fireU = function()
+    if player.cooldown <= 0 then
+      player.cooldown = 20
+      bullet = {}
+      bullet.img = love.graphics.newImage("bullet.png")
+      bullet.x = player.fireposx + 35
+      bullet.y = player.fireposy - 40
+      table.insert(player.bulletsU, bullet)
+    end
+  end
+  player.fireD = function()
+    if player.cooldown <= 0 then
+      player.cooldown = 20
+      bullet = {}
+      bullet.img = love.graphics.newImage("bullet.png")
+      bullet.x = player.fireposx + 35
+      bullet.y = player.fireposy
+      table.insert(player.bulletsD, bullet)
+    end
+  end
+  shadowsSpeed = 1.5
   world = {}
   world.shadowsL = {}
   spawnLcooldown = 10
@@ -55,6 +88,7 @@ And btw you can kill yourself with your own .. your own balls.
       shadowL.y = 400
       shadowL.width = shadowL.img:getWidth()
       shadowL.height = shadowL.img:getHeight()
+      shadowL.rightborder = shadowL.x + shadowL.width
       table.insert(world.shadowsL, shadowL)
     end
   end
@@ -69,6 +103,7 @@ And btw you can kill yourself with your own .. your own balls.
       shadowR.y = 400
       shadowR.width = shadowR.img:getWidth()
       shadowR.height = shadowR.img:getHeight()
+      shadowR.leftborder = shadowR.x - 20
       table.insert(world.shadowsR, shadowR)
     end
   end
@@ -83,6 +118,7 @@ And btw you can kill yourself with your own .. your own balls.
       shadowU.y = -5
       shadowU.width = shadowU.img:getWidth()
       shadowU.height = shadowU.img:getHeight()
+      shadowU.lowerborder = shadowU.y + 45
       table.insert(world.shadowsU, shadowU)
     end
   end
@@ -97,24 +133,82 @@ And btw you can kill yourself with your own .. your own balls.
       shadowD.y = 805
       shadowD.width = shadowD.img:getWidth()
       shadowD.height = shadowD.img:getHeight()
+      shadowD.upperborder = shadowD.y - 45
       table.insert(world.shadowsD, shadowD)
     end
   end
 end
+-- Collision Detection Functions 
+  -- LEFT
+function detectCollisonL(shadows, bullets)
+  for i,s in ipairs(shadows) do 
+    for i,b in ipairs(bullets) do
+      if b.x <= s.rightborder then
+        table.remove(bullets, i)
+        table.remove(shadows, i)
+        score = score + 1
+      end  
+    end
+  end
+end
+  -- RIGHT
+function detectCollisonR(shadows, bullets)
+  for i,s in ipairs(shadows) do 
+    for i,b in ipairs(bullets) do
+      if b.x >= s.leftborder then
+        table.remove(bullets, i)
+        table.remove(shadows, i)
+        score = score + 1
+      end  
+    end
+  end
+end
+  -- UP
+function detectCollisonU(shadows, bullets)
+  for i,s in ipairs(shadows) do 
+    for i,b in ipairs(bullets) do
+      if b.y <= s.lowerborder then
+        table.remove(bullets, i)
+        table.remove(shadows, i)
+        score = score + 1
+      end  
+    end
+  end
+end
 
+  -- DOWN
+function detectCollisonD(shadows, bullets)
+  for i,s in ipairs(shadows) do 
+    for i,b in ipairs(bullets) do
+      if b.y >= s.upperborder then
+        table.remove(bullets, i)
+        table.remove(shadows, i)
+        score = score + 1
+      end  
+    end
+  end
+end
 
 function love.update(dt)
   if love.keyboard.isDown("space") then
     gamestart = true
   end
 
+  detectCollisonL(world.shadowsL, player.bulletsL)
+  detectCollisonR(world.shadowsR, player.bulletsR)
+  detectCollisonD(world.shadowsD, player.bulletsD)
+  detectCollisonU(world.shadowsU, player.bulletsU)
   if gamestart == true then
+    
+
 
     player.cooldown = player.cooldown - 1
     spawnLcooldown = spawnLcooldown - 1
     spawnRcooldown = spawnRcooldown - 1
     spawnUcooldown = spawnUcooldown - 1
     spawnDcooldown = spawnDcooldown - 1
+    
+    -- spawning shadows
 
     if spawnLcooldown <= 0 then 
       world.spawnL()
@@ -147,10 +241,20 @@ function love.update(dt)
     end
   
     if love.keyboard.isDown("space") then
-      player.fire()
+      if player.status == player.right then
+        player.fireR()
+      elseif player.status == player.left then
+        player.fireL()
+      elseif player.status == player.back then
+        player.fireU()
+      elseif player.status == player.front then
+        player.fireD()
+      end
     end
+
+    
     -- Very Bad Collision Detection For The Player and Bullets
-    for i,b in ipairs(player.bullets) do
+    --[[ for i,b in ipairs(player.bullets) do
       -- First no controls the upper border, second no controls the left border of the player
       if b.y > 325 and b.x > 390 then
         -- First no controls the lower border, second no controls the right border of the player
@@ -159,7 +263,7 @@ function love.update(dt)
           kys = true
         end
       end
-    end
+    end ]]
 
 
     -- Very Bad Collision Detection For ShadowsL and Player
@@ -199,39 +303,70 @@ function love.update(dt)
     end
     -- Updating Shadows Position 
 
-    for _,s in ipairs(world.shadowsL) do
+    for _,s in pairs(world.shadowsL) do
       s.x = s.x + shadowsSpeed
+      s.rightborder = s.rightborder + shadowsSpeed
     end
 
-    for _,s in ipairs(world.shadowsR) do
+    for _,s in pairs(world.shadowsR) do
       s.x = s.x - shadowsSpeed
+      s.leftborder = s.leftborder - shadowsSpeed
     end
 
     for _,s in ipairs(world.shadowsD) do
       s.y = s.y - shadowsSpeed
+      s.upperborder = s.upperborder - shadowsSpeed
     end
 
     for _,s in ipairs(world.shadowsU) do
       s.y = s.y + shadowsSpeed
+      s.lowerborder = s.lowerborder + shadowsSpeed
     end
 
     -- Removing Bullets out of window border
-    for i,b in ipairs(player.bullets) do
-      if b.y < 80 or b.x > 800 then
-        table.remove(player.bullets, i)
-      elseif b.y > 850 or b.x < 0 then
-        table.remove(player.bullets, i)
-      end
-      if player.status == player.back then
-        b.y = b.y - 5
-      elseif player.status == player.right then
-        b.x = b.x + 5
-      elseif player.status == player.front then
-        b.y = b.y + 5 
-      elseif player.status == player.left then
-        b.x = b.x - 5
+    for i,b in ipairs(player.bulletsL) do
+      if b.x < -10 then
+        table.remove(player.bulletsL, i)
       end
     end
+    for i,b in ipairs(player.bulletsR) do
+      if b.x > 810 then
+        table.remove(player.bulletsR, i)
+      end
+    end
+    for i,b in ipairs(player.bulletsU) do
+      if b.y < -10 then
+        table.remove(player.bulletsU, i)
+      end
+    end
+    for i,b in ipairs(player.bulletsD) do
+      if b.y > 810 then
+        table.remove(player.bulletsD, i)
+      end
+    end  
+
+
+    for _,b in pairs(player.bulletsL) do
+      b.x = b.x - BULLET_SPEED
+    end
+    for _,b in pairs(player.bulletsR) do
+      b.x = b.x + BULLET_SPEED
+    end
+    for _,b in pairs(player.bulletsU) do
+      b.y = b.y - BULLET_SPEED
+    end
+    for _,b in pairs(player.bulletsD) do
+      b.y = b.y + BULLET_SPEED
+    end
+--[[     if player.status == player.back then
+      b.y = b.y - 5
+    elseif player.status == player.right then
+      b.x = b.x + 5
+    elseif player.status == player.front then
+      b.y = b.y + 5 
+    elseif player.status == player.left then
+      b.x = b.x - 5
+    end ]]
   end
 end
   
@@ -262,7 +397,16 @@ function love.draw()
   
   
     -- draw bullets
-  for _,b in pairs(player.bullets) do
+  for _,b in pairs(player.bulletsL) do
+    love.graphics.draw(bullet.img, b.x, b.y, 2, 2)
+  end
+  for _,b in pairs(player.bulletsR) do
+    love.graphics.draw(bullet.img, b.x, b.y, 2, 2)
+  end
+  for _,b in pairs(player.bulletsU) do
+    love.graphics.draw(bullet.img, b.x, b.y, 2, 2)
+  end
+  for _,b in pairs(player.bulletsD) do
     love.graphics.draw(bullet.img, b.x, b.y, 2, 2)
   end
   -- end game message
