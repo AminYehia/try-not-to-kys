@@ -211,6 +211,9 @@ function love.update(dt)
     gamestart = true
   end
 
+  if love.keyboard.isDown("escape") then
+    love.event.quit()
+  end
 
 
   if love.keyboard.isDown(shooting_key) then
@@ -240,6 +243,32 @@ function love.update(dt)
   detectCollisonR(world.shadowsR, player.bulletsR)
   detectCollisonD(world.shadowsD, player.bulletsD)
   detectCollisonU(world.shadowsU, player.bulletsU)
+
+  -- Despawning Enemies
+
+  if gamestart == false or kys == true then
+    for i,s in ipairs(world.shadowsL) do
+      table.remove(world.shadowsL, i)
+    end
+
+
+    for i,s in ipairs(world.shadowsR) do
+      table.remove(world.shadowsR, i)
+    end
+
+
+    for i,s in ipairs(world.shadowsU) do
+      table.remove(world.shadowsU, i)
+    end
+
+
+    for i,s in ipairs(world.shadowsD) do
+      table.remove(world.shadowsD, i)
+    end
+  end
+
+  -- Loop At Game Start
+
   if gamestart == true then
     kys = false
     kbs = false
@@ -380,15 +409,7 @@ function love.update(dt)
     for _,b in pairs(player.bulletsD) do
       b.y = b.y + BULLET_SPEED
     end
---[[     if player.status == player.back then
-      b.y = b.y - 5
-    elseif player.status == player.right then
-      b.x = b.x + 5
-    elseif player.status == player.front then
-      b.y = b.y + 5 
-    elseif player.status == player.left then
-      b.x = b.x - 5
-    end ]]
+    
   end
 end
   
