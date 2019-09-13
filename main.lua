@@ -5,15 +5,20 @@ function love.load()
   score = 0
   kys = false -- killed yourself
   kbs = false -- killed by shadows
+  shooting_key = "z"
+  kys_key = "x"
+  random_int = 1
   gamestart = false
   love.window.setTitle("Try Not To KYS (Or Don't)")
-  GAME_START_TEXT = [[This game is still in development (not much of a development I'd say),
-Currently you can spawn fire balls (with Space) and control your balls (Ahem!) with the arrow kyes.
-And btw you can kill yourself with your own .. your own balls.
+  GAME_START_TEXT = [[This game is still in development (another way to say that it looks bad and has bugs),
+The goal of this game is to kill the approaching ghosts before they reach you. Shoot the ghosts with 
+either "Z" or "X". The shooting button changes after a random amount of time, and if you use 
+the wrong button you will Kill Yourself. 
 
 
-                                                        Press Spacebar to continue...]]
+                                                    Press Spacebar to Continue or Restart...]]
   GAME_VERSION = "Game version: 0.02"
+  background = love.graphics.newImage("background1.png")
   love.graphics.setDefaultFilter("nearest", "nearest")
   love.window.setMode(800, 800, {resizable=false, vsync=true})
   player = {}
@@ -27,6 +32,7 @@ And btw you can kill yourself with your own .. your own balls.
   player.x = 400
   player.y = 400
   player.rotation = 0
+  button_cooldown = 95
   BULLET_SPEED = 5
   player.bulletsL = {}
   player.bulletsR = {}
@@ -189,17 +195,54 @@ function detectCollisonD(shadows, bullets)
   end
 end
 
+-- Changing Keys Function
+function changeKeys()
+  if shooting_key == "z" then
+    shooting_key = "x"
+    kys_key = "z"
+  elseif shooting_key == "x" then
+    shooting_key = "z"
+    kys_key = "x"
+  end
+end
+
 function love.update(dt)
   if love.keyboard.isDown("space") then
     gamestart = true
   end
+
+
+
+  if love.keyboard.isDown(shooting_key) then
+    if player.status == player.right then
+      player.fireR()
+    elseif player.status == player.left then
+      player.fireL()
+    elseif player.status == player.back then
+      player.fireU()
+    elseif player.status == player.front then
+      player.fireD()
+    end
+  end
+
+
+  if love.keyboard.isDown(kys_key) then
+    kys = true
+    gamestart = false
+  elseif button_cooldown <=0 then
+    changeKeys()
+    button_cooldown = math.random (90, 300)
+  end
+
+
 
   detectCollisonL(world.shadowsL, player.bulletsL)
   detectCollisonR(world.shadowsR, player.bulletsR)
   detectCollisonD(world.shadowsD, player.bulletsD)
   detectCollisonU(world.shadowsU, player.bulletsU)
   if gamestart == true then
-    
+    kys = false
+    kbs = false
 
 
     player.cooldown = player.cooldown - 1
@@ -207,6 +250,7 @@ function love.update(dt)
     spawnRcooldown = spawnRcooldown - 1
     spawnUcooldown = spawnUcooldown - 1
     spawnDcooldown = spawnDcooldown - 1
+    button_cooldown = button_cooldown -1
     
     -- spawning shadows
 
@@ -240,38 +284,13 @@ function love.update(dt)
       player.status = player.front
     end
   
-    if love.keyboard.isDown("space") then
-      if player.status == player.right then
-        player.fireR()
-      elseif player.status == player.left then
-        player.fireL()
-      elseif player.status == player.back then
-        player.fireU()
-      elseif player.status == player.front then
-        player.fireD()
-      end
-    end
-
-    
-    -- Very Bad Collision Detection For The Player and Bullets
-    --[[ for i,b in ipairs(player.bullets) do
-      -- First no controls the upper border, second no controls the left border of the player
-      if b.y > 325 and b.x > 390 then
-        -- First no controls the lower border, second no controls the right border of the player
-        if b.y < 455 and b.x < 450 then
-          table.remove(player.bullets, i)
-          kys = true
-        end
-      end
-    end ]]
-
-
     -- Very Bad Collision Detection For ShadowsL and Player
     for i,s in ipairs(world.shadowsL) do
       -- Checks against left border of the player
       if s.x > 350 then
         table.remove(world.shadowsL, i)
         kbs = true
+        gamestart = false
       end
     end
 
@@ -281,6 +300,7 @@ function love.update(dt)
       if s.x < 450 then
         table.remove(world.shadowsR, i)
         kbs = true
+        gamestart = false
       end
     end
 
@@ -290,6 +310,7 @@ function love.update(dt)
       if s.y > 370 then
         table.remove(world.shadowsU, i)
         kbs = true
+        gamestart = false
       end
     end
 
@@ -299,6 +320,7 @@ function love.update(dt)
       if s.y < 490 then
         table.remove(world.shadowsD, i)
         kbs = true
+        gamestart = false
       end
     end
     -- Updating Shadows Position 
@@ -371,6 +393,7 @@ function love.update(dt)
 end
   
 function love.draw()
+  love.graphics.draw(background, 0, 0, 0, 7, 7)
   -- game start text
   love.graphics.print(GAME_VERSION, 0, 750)
   if gamestart == false then
@@ -378,6 +401,13 @@ function love.draw()
   end
 
   if gamestart == true then
+    -- Drawing Controls
+    if shooting_key == "z" then 
+      love.graphics.print("Z for Shooting, X for KYS", 0, 0, 0, 2, 2)
+    elseif shooting_key == "x" then
+      love.graphics.print("X for Shooting, Z for KYS", 0, 0, 0, 2, 2)
+    end
+    -- Drawing Shadows
     for _,s in pairs(world.shadowsL) do
       love.graphics.draw(shadowL.img, s.x, s.y, 0, 1, 1, shadowL.width/2, shadowL.height/2)
     end
