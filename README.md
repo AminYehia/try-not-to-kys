@@ -1,10 +1,8 @@
 Try Not To KYS is a game where you control a wizard that has crippling depression that prevents him form walking.
-The wizard can spawn fireballs and control these balls to defeate evil shadows that are crawling towards him.
-> (Shadows are still under development) 
+The wizard can shoot fireballs to kill ghosts approaching him.
+After a certain amount of time the wizard's evil wand will change its behaviour and reverse the shooting spell and the self-killing spell.
+Help the wizard defend himself against ghosts and try not to make him kill himself.
 
-It is note worthy to mention that your own fireballs can kill you.
+Controls are "Z" and "X" to either shoot a fireball or kys, and "Arrow Keys" to control directions.
 
-The current state of the game is that you can only spawn fireballs with "Space" and move them around with "Arrow Keys".
-
-This game is not finished, not sure if it can be called a game or if it will ever be finished. It is a fun side project to me.
 The "game" is available for download for windows at https://github.com/AminYehia/try-not-to-kys/releases.
