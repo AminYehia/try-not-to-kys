@@ -232,6 +232,7 @@ function love.update(dt)
   if love.keyboard.isDown(kys_key) then
     kys = true
     gamestart = false
+    score = 0
   elseif button_cooldown <=0 then
     changeKeys()
     button_cooldown = math.random (90, 300)
@@ -320,6 +321,7 @@ function love.update(dt)
         table.remove(world.shadowsL, i)
         kbs = true
         gamestart = false
+        score = 0
       end
     end
 
@@ -330,6 +332,7 @@ function love.update(dt)
         table.remove(world.shadowsR, i)
         kbs = true
         gamestart = false
+        score = 0
       end
     end
 
@@ -340,6 +343,7 @@ function love.update(dt)
         table.remove(world.shadowsU, i)
         kbs = true
         gamestart = false
+        score = 0
       end
     end
 
@@ -350,6 +354,7 @@ function love.update(dt)
         table.remove(world.shadowsD, i)
         kbs = true
         gamestart = false
+        score = 0
       end
     end
     -- Updating Shadows Position 
