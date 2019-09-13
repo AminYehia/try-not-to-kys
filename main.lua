@@ -6,6 +6,12 @@ function love.load()
   highscore = 0
   kys = false -- killed yourself
   kbs = false -- killed by shadows
+  zbutton = {}
+  zbutton.y = 50
+  zbutton.img = love.graphics.newImage("z.png")
+  xbutton = {}
+  xbutton.img = love.graphics.newImage("x.png")
+  xbutton.y = 100
   shooting_key = "z"
   kys_key = "x"
   random_int = 1
@@ -18,10 +24,10 @@ the wrong button you will Kill Yourself.
 
 
                                                     Press Spacebar to Continue or Restart...]]
-  GAME_VERSION = "Game version: 0.02"
+  GAME_VERSION = "Game version: 0.03"
   background = love.graphics.newImage("background1.png")
   love.graphics.setDefaultFilter("nearest", "nearest")
-  love.window.setMode(800, 800, {resizable=false, vsync=true})
+  love.window.setMode(800, 700, {resizable=false, vsync=true})
   player = {}
   player.front = love.graphics.newImage("front.png")
   player.back = love.graphics.newImage("back.png")
@@ -82,7 +88,7 @@ the wrong button you will Kill Yourself.
       table.insert(player.bulletsD, bullet)
     end
   end
-  shadowsSpeed = 1.5
+  shadowsSpeed = .5
   world = {}
   world.shadowsL = {}
   spawnLcooldown = 10
@@ -208,9 +214,13 @@ function changeKeys()
   if shooting_key == "z" then
     shooting_key = "x"
     kys_key = "z"
+    zbutton.y = 100
+    xbutton.y = 50
   elseif shooting_key == "x" then
     shooting_key = "z"
     kys_key = "x"
+    xbutton.y = 100
+    zbutton.y = 50
   end
 end
 
@@ -222,8 +232,22 @@ function love.update(dt)
   if love.keyboard.isDown("escape") then
     love.event.quit()
   end
+  -- Increasing Shadows' Speed Overtime
+  shadowsSpeed = shadowsSpeed + (.02 / 60)
 
-
+  -- Changing Keys
+  if not love.keyboard.isDown(shooting_key) then
+    if love.keyboard.isDown(kys_key) then
+      updateHighscore()
+      kys = true
+      gamestart = false
+      score = 0
+    elseif button_cooldown <=0 then
+      changeKeys()
+      button_cooldown = math.random (120, 450)
+    end
+  end
+  -- Calling Fire Functions
   if love.keyboard.isDown(shooting_key) then
     if player.status == player.right then
       player.fireR()
@@ -235,18 +259,6 @@ function love.update(dt)
       player.fireD()
     end
   end
-
-
-  if love.keyboard.isDown(kys_key) then
-    updateHighscore()
-    kys = true
-    gamestart = false
-    score = 0
-  elseif button_cooldown <=0 then
-    changeKeys()
-    button_cooldown = math.random (90, 300)
-  end
-
 
 
   detectCollisonL(world.shadowsL, player.bulletsL)
@@ -295,22 +307,22 @@ function love.update(dt)
 
     if spawnLcooldown <= 0 then 
       world.spawnL()
-      spawnLcooldown = math.random(120, 400)
+      spawnLcooldown = math.random(150, 500)
     end
 
     if spawnRcooldown <= 0 then 
       world.spawnR()
-      spawnRcooldown = math.random(120, 400)
+      spawnRcooldown = math.random(150, 500)
     end
 
     if spawnUcooldown <= 0 then 
       world.spawnU()
-      spawnUcooldown = math.random(120, 400)
+      spawnUcooldown = math.random(150, 500)
     end
 
     if spawnDcooldown <= 0 then 
       world.spawnD()
-      spawnDcooldown = math.random(120, 400)
+      spawnDcooldown = math.random(150, 500)
     end
   
     if love.keyboard.isDown("right") then
@@ -434,20 +446,27 @@ end
 function love.draw()
   love.graphics.draw(background, 0, 0, 0, 7, 7)
   -- game start text
-  love.graphics.print(GAME_VERSION, 0, 750)
+  love.graphics.print(GAME_VERSION, 0, 680)
   if gamestart == false then
     love.graphics.print(GAME_START_TEXT, 0, 70, 0, 1.25)
   end
 
   if gamestart == true then
+
+    love.graphics.print("To Shoot", 75, 55, 0, 2, 2)
+    love.graphics.print("To KYS", 75, 105, 0, 2, 2)
+
+    
     -- Drawing Score
     love.graphics.print("Score:  " .. score, 600, 70, 0, 2)
-    love.graphics.print("High Score:  " .. highscore, 550, 650, 0, 2)
+    love.graphics.print("Highscore:  " .. highscore, 550, 620, 0, 2)
     -- Drawing Controls
     if shooting_key == "z" then 
-      love.graphics.print("Z for Shooting, X for KYS", 0, 70, 0, 2, 2)
+      love.graphics.draw(zbutton.img, 20, zbutton.y, 0, 1, 1)
+      love.graphics.draw(xbutton.img, 20, xbutton.y, 0, 1, 1)
     elseif shooting_key == "x" then
-      love.graphics.print("X for Shooting, Z for KYS", 0, 70, 0, 2, 2)
+      love.graphics.draw(xbutton.img, 20, xbutton.y, 0, 1, 1)
+      love.graphics.draw(zbutton.img, 20, zbutton.y, 0, 1, 1)
     end
     -- Drawing Shadows
     for _,s in pairs(world.shadowsL) do
