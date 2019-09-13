@@ -397,15 +397,17 @@ function love.draw()
   -- game start text
   love.graphics.print(GAME_VERSION, 0, 750)
   if gamestart == false then
-    love.graphics.print(GAME_START_TEXT, 0, 0, 0, 1.25)
+    love.graphics.print(GAME_START_TEXT, 0, 70, 0, 1.25)
   end
 
   if gamestart == true then
+    -- Drawing Score
+    love.graphics.print("Score:  " .. score, 600, 70, 0, 2)
     -- Drawing Controls
     if shooting_key == "z" then 
-      love.graphics.print("Z for Shooting, X for KYS", 0, 0, 0, 2, 2)
+      love.graphics.print("Z for Shooting, X for KYS", 0, 70, 0, 2, 2)
     elseif shooting_key == "x" then
-      love.graphics.print("X for Shooting, Z for KYS", 0, 0, 0, 2, 2)
+      love.graphics.print("X for Shooting, Z for KYS", 0, 70, 0, 2, 2)
     end
     -- Drawing Shadows
     for _,s in pairs(world.shadowsL) do
