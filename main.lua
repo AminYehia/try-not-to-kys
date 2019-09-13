@@ -3,6 +3,7 @@ function love.load()
   love.graphics.setDefaultFilter("nearest", "nearest")
   love.window.setIcon(ico)
   score = 0
+  highscore = 0
   kys = false -- killed yourself
   kbs = false -- killed by shadows
   shooting_key = "z"
@@ -195,6 +196,13 @@ function detectCollisonD(shadows, bullets)
   end
 end
 
+-- Update Highscore Function
+function updateHighscore()
+  if highscore < score then
+    highscore = score
+  end
+end
+
 -- Changing Keys Function
 function changeKeys()
   if shooting_key == "z" then
@@ -230,6 +238,7 @@ function love.update(dt)
 
 
   if love.keyboard.isDown(kys_key) then
+    updateHighscore()
     kys = true
     gamestart = false
     score = 0
@@ -319,6 +328,7 @@ function love.update(dt)
       -- Checks against left border of the player
       if s.x > 350 then
         table.remove(world.shadowsL, i)
+        updateHighscore()
         kbs = true
         gamestart = false
         score = 0
@@ -330,6 +340,7 @@ function love.update(dt)
       -- Checks against left border of the player
       if s.x < 450 then
         table.remove(world.shadowsR, i)
+        updateHighscore()
         kbs = true
         gamestart = false
         score = 0
@@ -341,6 +352,7 @@ function love.update(dt)
       -- Checks against left border of the player
       if s.y > 370 then
         table.remove(world.shadowsU, i)
+        updateHighscore()
         kbs = true
         gamestart = false
         score = 0
@@ -352,6 +364,7 @@ function love.update(dt)
       -- Checks against left border of the player
       if s.y < 490 then
         table.remove(world.shadowsD, i)
+        updateHighscore()
         kbs = true
         gamestart = false
         score = 0
@@ -429,6 +442,7 @@ function love.draw()
   if gamestart == true then
     -- Drawing Score
     love.graphics.print("Score:  " .. score, 600, 70, 0, 2)
+    love.graphics.print("High Score:  " .. highscore, 550, 650, 0, 2)
     -- Drawing Controls
     if shooting_key == "z" then 
       love.graphics.print("Z for Shooting, X for KYS", 0, 70, 0, 2, 2)
