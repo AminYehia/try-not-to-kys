@@ -224,6 +224,10 @@ function changeKeys()
   end
 end
 
+function resetShadowSpeed()
+  shadowsSpeed = 0.7
+end
+
 function love.update(dt)
   if love.keyboard.isDown("space") then
     gamestart = true
@@ -242,6 +246,7 @@ function love.update(dt)
       kys = true
       gamestart = false
       score = 0
+      resetShadowSpeed()
     elseif button_cooldown <=0 then
       changeKeys()
       button_cooldown = math.random (120, 450)
@@ -271,21 +276,25 @@ function love.update(dt)
   if gamestart == false or kys == true then
     for i,s in ipairs(world.shadowsL) do
       table.remove(world.shadowsL, i)
+      resetShadowSpeed()
     end
 
 
     for i,s in ipairs(world.shadowsR) do
       table.remove(world.shadowsR, i)
+      resetShadowSpeed()
     end
 
 
     for i,s in ipairs(world.shadowsU) do
       table.remove(world.shadowsU, i)
+      resetShadowSpeed()
     end
 
 
     for i,s in ipairs(world.shadowsD) do
       table.remove(world.shadowsD, i)
+      resetShadowSpeed()
     end
   end
 
