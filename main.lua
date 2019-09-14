@@ -212,15 +212,15 @@ end
 -- Changing Keys Function
 function changeKeys()
   if shooting_key == "z" then
-    shooting_key = "x"
-    kys_key = "z"
     zbutton.y = 100
     xbutton.y = 50
+    shooting_key = "x"
+    kys_key = "z"
   elseif shooting_key == "x" then
-    shooting_key = "z"
-    kys_key = "x"
     xbutton.y = 100
     zbutton.y = 50
+    shooting_key = "z"
+    kys_key = "x"
   end
 end
 
